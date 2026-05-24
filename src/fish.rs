@@ -152,7 +152,7 @@ impl<R: Read, W: Write> Interpreter<R, W> {
             tick: None,
             input: input.bytes(),
             output,
-            rng: thread_rng(),
+            rng: rand::rng(),
             state: ParserState::Normal,
             memory_is_dirty: false,
         }
