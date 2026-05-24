@@ -10,7 +10,7 @@ use std::{
     collections::HashMap,
     fs::File,
     io,
-    io::{prelude::*, stderr, BufReader, Bytes, Cursor},
+    io::{prelude::*, BufReader, Bytes, Cursor},
     path::Path,
     result, thread,
     time::Duration,
@@ -70,14 +70,14 @@ impl CodeBox {
 
     #[allow(dead_code)]
     fn set(&mut self, x: usize, y: usize, val: u8) {
-        if let Some(line) = self.data.get_mut(y) {
-            if x < self.width {
-                if x + 1 > line.len() {
-                    line.resize(x + 1, b' ');
-                }
-                if let Some(p) = line.get_mut(x) {
-                    *p = val;
-                }
+        if let Some(line) = self.data.get_mut(y)
+            && x < self.width
+        {
+            if x + 1 > line.len() {
+                line.resize(x + 1, b' ');
+            }
+            if let Some(p) = line.get_mut(x) {
+                *p = val;
             }
         }
     }
@@ -195,12 +195,12 @@ impl<R: Read, W: Write> Interpreter<R, W> {
             }.unwrap_or(Value::Null)),
         });
 
-        writeln!(&mut stderr(), "{}", state.to_string()).expect("writeln! failed");
+        eprintln!("{state}");
     }
 
     pub fn push_str(&mut self, s: &str) {
         for c in s.bytes() {
-            self.stack.top_mut().push(Val::Byte(c as u8));
+            self.stack.top_mut().push(Val::Byte(c));
         }
     }
 
@@ -615,10 +615,10 @@ impl<R: Read, W: Write> Interpreter<R, W> {
 
     fn get_memory(&self, code: &CodeBox, x: i64, y: i64) -> Val {
         // fetch from map only if memory is dirty
-        if self.memory_is_dirty {
-            if let Some(v) = self.memory.get(&MemPos { x, y }) {
-                return v.clone();
-            }
+        if self.memory_is_dirty
+            && let Some(v) = self.memory.get(&MemPos { x, y })
+        {
+            return v.clone();
         }
 
         let b = code.get(x as usize, y as usize);

@@ -145,7 +145,7 @@ mod tests {
     fn from_works() {
         assert_eq!(Val::from(b'a'), Val::Byte(b'a'));
         assert_eq!(Val::from(-512i64), Val::Int(-512));
-        assert_eq!(Val::from(3.14), Val::Float(3.14));
+        assert_eq!(Val::from(2.56), Val::Float(2.56));
     }
 
     #[test]
@@ -156,8 +156,8 @@ mod tests {
         let val: Val = (-512i64).into();
         assert_eq!(val, Val::Int(-512));
 
-        let val: Val = 3.14.into();
-        assert_eq!(val, Val::Float(3.14));
+        let val: Val = 2.56.into();
+        assert_eq!(val, Val::Float(2.56));
     }
 
     #[test]
@@ -168,8 +168,8 @@ mod tests {
         let v = i64::from(Val::Int(-512));
         assert_eq!(v, -512);
 
-        let v = f64::from(Val::Float(3.14));
-        assert_eq!(v, 3.14);
+        let v = f64::from(Val::Float(2.56));
+        assert_eq!(v, 2.56);
     }
 
     #[test]
@@ -180,8 +180,8 @@ mod tests {
         let v: i64 = Val::Int(-512).into();
         assert_eq!(v, -512);
 
-        let v: f64 = Val::Float(3.14).into();
-        assert_eq!(v, 3.14);
+        let v: f64 = Val::Float(2.56).into();
+        assert_eq!(v, 2.56);
     }
 
     #[test]

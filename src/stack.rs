@@ -482,8 +482,8 @@ mod stack_of_stacks_tests {
         s.top_mut().push(42);
         s.top_mut().push(58);
 
-        let _ = s.top_mut().switch_register().unwrap();
-        let _ = s.push_stack(1).unwrap();
+        s.top_mut().switch_register().unwrap();
+        s.push_stack(1).unwrap();
 
         s.pop_stack();
 
@@ -499,8 +499,8 @@ mod stack_of_stacks_tests {
         s.top_mut().push(42);
         s.top_mut().push(58);
 
-        let _ = s.push_stack(2).unwrap();
-        let _ = s.top_mut().switch_register().unwrap();
+        s.push_stack(2).unwrap();
+        s.top_mut().switch_register().unwrap();
 
         s.pop_stack();
 
@@ -516,7 +516,7 @@ mod stack_of_stacks_tests {
         s.top_mut().push(42);
         s.top_mut().push(58);
 
-        let _ = s.top_mut().switch_register().unwrap();
+        s.top_mut().switch_register().unwrap();
 
         s.pop_stack();
 
