@@ -1,0 +1,58 @@
+name: Release to npm
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      # 必须用 rustup 安装最新版，Ubuntu apt 的版本太低！
+      - name: Setup Rust
+        run: rustup default stable
+
+      - name: Build Release
+        run: cargo build --release
+
+      # 将编译产物打包进 npm
+      - name: Prepare npm package
+        run: |
+          mkdir -p npm-pkg/bin
+          cp target/release/fishr npm-pkg/bin/fishr-linux-x64
+          cp -r examples npm-pkg/examples
+          cp README.md npm-pkg/README.md
+          cp LICENSE npm-pkg/LICENSE
+          chmod +x npm-pkg/bin/fishr-linux-x64
+          
+          cd npm-pkg
+          cat << 'EOF' > package.json
+          {
+            "name": "fishr",
+            "version": "0.1.0",
+            "description": "Fish ><> esoteric language interpreter",
+            "bin": { "fishr": "./run.js" },
+            "files": ["run.js", "bin/", "examples/", "README.md", "LICENSE"]
+          }
+          EOF
+          
+          cat << 'EOF' > run.js
+          #!/usr/bin/env node
+          const { spawn } = require('child_process');
+          const path = require('path');
+          const bin = path.join(__dirname, 'bin', 'fishr-linux-x64');
+          spawn(bin, process.argv.slice(2), { stdio: 'inherit' });
+          EOF
+          
+          chmod +x run.js
+
+      - name: Publish to npm
+        run: |
+          cd npm-pkg
+          npm config set //registry.npmjs.org/:_authToken ${NODE_AUTH_TOKEN}
+          npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
