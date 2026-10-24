@@ -9,42 +9,88 @@ jobs:
   build-and-publish:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
       
-      # 必须用 rustup 安装最新版，Ubuntu apt 的版本太低！
+      # 1. 安装 Rust 并使用缓存（大幅提升重复发布时的编译速度）
       - name: Setup Rust
-        run: rustup default stable
+        uses: dtolnay/rust-toolchain@stable
+      - name: Rust Cache
+        uses: Swatinem/rust-cache@v2
+
+      # 2. 安装 Node 并配置 npm registry 认证
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          registry-url: 'https://registry.npmjs.org'
 
       - name: Build Release
         run: cargo build --release
 
-      # 将编译产物打包进 npm
+      # 3. 准备 npm 包结构
       - name: Prepare npm package
         run: |
           mkdir -p npm-pkg/bin
           cp target/release/fishr npm-pkg/bin/fishr-linux-x64
           cp -r examples npm-pkg/examples
           cp README.md npm-pkg/README.md
-          cp LICENSE npm-pkg/LICENSE
+          cp LICENSE.md npm-pkg/LICENSE.md
+          
           chmod +x npm-pkg/bin/fishr-linux-x64
           
           cd npm-pkg
-          cat << 'EOF' > package.json
+          
+          # 动态获取 Git Tag 版本号 (例如 v0.1.0 会截取为 0.1.0)
+          VERSION=${GITHUB_REF#refs/tags/v}
+          
+          cat << EOF > package.json
           {
             "name": "fishr",
-            "version": "0.1.0",
-            "description": "Fish ><> esoteric language interpreter",
+            "version": "$VERSION",
+            "description": "Fast Fish ><> esoteric language interpreter, optimized for Online Judges",
+            "author": "CB-X2-Jun",
+            "license": "MIT",
+            "repository": {
+              "type": "git",
+              "url": "git+https://github.com/CB-X2-Jun/fishr.git"
+            },
+            "keywords": [
+              "fish",
+              "><>",
+              "esoteric",
+              "esolang",
+              "interpreter",
+              "online-judge"
+            ],
             "bin": { "fishr": "./run.js" },
-            "files": ["run.js", "bin/", "examples/", "README.md", "LICENSE"]
+            "files": ["run.js", "bin/", "examples/", "README.md", "LICENSE.md"]
           }
           EOF
           
+          # 增强版 run.js（带错误处理与平台提示）
           cat << 'EOF' > run.js
           #!/usr/bin/env node
           const { spawn } = require('child_process');
           const path = require('path');
+          
+          if (process.platform !== 'linux') {
+            console.error('\x1b[31mError: The pre-compiled binary in this package is only for Linux x64.\x1b[0m');
+            console.error('For macOS or Windows, please compile from source: https://github.com/CB-X2-Jun/fishr');
+            process.exit(1);
+          }
+
           const bin = path.join(__dirname, 'bin', 'fishr-linux-x64');
-          spawn(bin, process.argv.slice(2), { stdio: 'inherit' });
+          const child = spawn(bin, process.argv.slice(2), { stdio: 'inherit' });
+
+          child.on('error', (err) => {
+            console.error('Failed to start fishr:', err);
+            process.exit(1);
+          });
+
+          child.on('exit', (code) => {
+            process.exit(code || 0);
+          });
           EOF
           
           chmod +x run.js
@@ -52,7 +98,6 @@ jobs:
       - name: Publish to npm
         run: |
           cd npm-pkg
-          npm config set //registry.npmjs.org/:_authToken ${NODE_AUTH_TOKEN}
           npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
