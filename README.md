@@ -60,6 +60,6 @@ fishr examples/quine.fish
 
 ## 📄 License
 
-This project is licensed under the MIT License. 
-Original Copyright © 2017 [Marc Noirot](https://github.com/noirotm).
-Modifications Copyright © 2026 [CB-X2-Jun](https://github.com/CB-X2-Jun).
+This project is licensed under the MIT License.   
+Original Copyright © 2017 [Marc Noirot](https://github.com/noirotm).  
+Modifications Copyright © 2026 [CB-X2-Jun](https://github.com/CB-X2-Jun).  
