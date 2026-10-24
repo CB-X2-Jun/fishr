@@ -1,7 +1,7 @@
 The MIT License (MIT)
 =====================
 
-Copyright © 2017 Marc Noirot
+Copyright © 2017 Marc Noirot  
 Copyright © 2026 CB-X2-Jun (Modifications)
 
 Permission is hereby granted, free of charge, to any person
