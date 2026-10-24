@@ -12,8 +12,9 @@ It is written in Rust and aims to be a fast and safe program.
 
 ### via npm (binaries & examples)
 ```bash
-npm install -g fishr
+npm install -g @cb-x2-jun/fishr
 ```
+*Note: Even though the package is scoped, the CLI command remains simply `fishr`.*
 
 ### via Cargo (From Source)
 If you want to compile it yourself, you need Rust 1.85+ (Rust 2024 Edition) installed:
