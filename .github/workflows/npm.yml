@@ -5,6 +5,8 @@ on:
     tags:
       - 'v*'
 
+  workflow_dispatch: 
+
 jobs:
   build-and-publish:
     runs-on: ubuntu-latest
@@ -46,9 +48,9 @@ jobs:
           
           cat << EOF > package.json
           {
-            "name": "fishr",
+            "name": "@cb-x2-jun/fishr",
             "version": "$VERSION",
-            "description": "Fast Fish ><> esoteric language interpreter, optimized for Online Judges",
+            "description": "Fast Fish ><> esoteric language interpreter",
             "author": "CB-X2-Jun",
             "license": "MIT",
             "repository": {
